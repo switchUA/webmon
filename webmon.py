@@ -2,6 +2,13 @@ from telegram import Bot
 from argparse import ArgumentParser
 import requests
 
+def check_service(endpoint, desired_status):
+    try:
+        return requests.get(endpoint).status_code == desired_status
+    except requests.ConnectionError:
+        return False
+
+
 if __name__ == '__main__':
 
     parser = ArgumentParser()
@@ -12,5 +19,5 @@ if __name__ == '__main__':
     arguments = parser.parse_args()
     bot = Bot(arguments.token)
 
-    if requests.get(arguments.endpoint).status_code != arguments.goal:
-        bot.send_message(arguments.user_id, f"{arguments.endpoint} is not 200")
+    if not check_service(arguments.endpoint, arguments.goal):
+        bot.send_message(arguments.user_id, f"{arguments.endpoint} is seems to be down")
